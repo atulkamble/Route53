@@ -1,5 +1,5 @@
 <div align="center">
-<h1>🚀 Route53</h1>
+<h1>🚀 🌐 AWS Route 53 – Complete Guide (Theory + Hands-On + CLI)</h1>
 <p><strong>Built with ❤️ by <a href="https://github.com/atulkamble">Atul Kamble</a></strong></p>
 
 <p>
@@ -34,7 +34,6 @@
 
 ---
 
-## 🌐 AWS Route 53 – Complete Guide (Theory + Hands-On + CLI)
 
 ![Image](https://d2908q01vomqb2.cloudfront.net/fc074d501302eb2b93e2554793fcaf50b3bf7291/2023/05/10/Figure-1.-Solution-architecture.png)
 
