@@ -1,6 +1,4 @@
-For training delivery, I’d shorten the master guide and make the **hands-on flow** the center of the topic.
-
-## AWS Route 53 — Core Training Guide
+## AWS Route 53 
 
 ### 1. What is Route 53?
 
