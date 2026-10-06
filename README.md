@@ -767,5 +767,3 @@ curl -I http://www.atulkamble.in
         ↓
 12. Failover Routing
 ```
-
-For a focused Route 53 class, these are the highest-value labs: **Domain → EC2**, **Domain → ALB**, **Weighted Routing**, and **Failover + Health Check**.
