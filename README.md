@@ -1,878 +1,773 @@
-# AWS Route 53 – Complete Master Guide (Interview + Hands-On + Projects)
+For training delivery, I’d shorten the master guide and make the **hands-on flow** the center of the topic.
 
-## Table of Contents
+## AWS Route 53 — Core Training Guide
 
-1. Introduction to Route 53
-2. DNS Fundamentals
-3. DNS Resolution Process
-4. Route 53 Architecture
-5. Hosted Zones
-6. DNS Record Types
-7. Alias Records
-8. Routing Policies
-9. Health Checks
-10. Route 53 Integrations
-11. Route 53 Architectures & Diagrams
-12. AWS CLI Commands
-13. Hands-On Labs
-14. Real-World Projects
-15. Monitoring & Security
-16. Pricing
-17. Troubleshooting
-18. Interview Questions
-19. Comparison Tables
-20. Learning Roadmap
-21. Quick Revision Sheet
+### 1. What is Route 53?
+
+Amazon Route 53 is AWS’s managed DNS service.
+
+**Core functions:**
+- Domain registration
+- DNS management
+- Traffic routing
+- Health checks
+- Failover
+
+**Remember:** Route 53 is a **global service**. DNS primarily uses **UDP/TCP port 53**.
 
 ---
 
-# 1. Introduction to Route 53
+## 2. Core DNS Flow
 
-AWS Route 53 is a highly available, scalable, and fully managed Domain Name System (DNS) service provided by AWS.
-
-Route 53 helps users connect to applications running in AWS and outside AWS using domain names instead of IP addresses.
-
-Main Functions:
-
-* Domain Registration
-* DNS Resolution
-* Traffic Routing
-* Health Monitoring
-* Disaster Recovery
-* Global Traffic Management
-
-Route 53 is a Global Service.
-
----
-
-## Why is it Called Route 53?
-
-DNS operates on Port 53.
-
-| Protocol | Port |
-| -------- | ---- |
-| TCP      | 53   |
-| UDP      | 53   |
-
-AWS named the service Route 53 because it routes traffic using DNS on Port 53.
-
----
-
-# 2. DNS Fundamentals
-
-DNS (Domain Name System) converts human-readable names into machine-readable IP addresses.
-
-Example:
-
-[www.cloudnautic.in](http://www.cloudnautic.in)
-
-↓
-
-54.210.120.15
-
-Without DNS:
-
-http://54.210.120.15
-
-With DNS:
-
-[www.cloudnautic.in](http://www.cloudnautic.in)
-
-Benefits:
-
-* Easy to remember
-* User friendly
-* Supports internet scalability
-
----
-
-# 3. DNS Resolution Process
-
-User Browser
-↓
-Recursive Resolver
-↓
-Root DNS Server
-↓
-TLD Server (.com/.in)
-↓
-Authoritative DNS Server
-(Route 53)
-↓
-IP Address Returned
-↓
-Website Access
-
-Important Terms:
-
-Root Server
-
-Top level DNS servers.
-
-TLD Server
-
-Handles .com, .org, .in etc.
-
-Authoritative Server
-
-Contains actual DNS records.
-
----
-
-# 4. Route 53 Architecture
-
-Internet Users
-│
-▼
+```text
+User enters:
+www.atulkamble.in
+        |
+        v
+DNS Resolver
+        |
+        v
+Root DNS
+        |
+        v
+.in TLD
+        |
+        v
 Route 53
-│
-├── EC2
-├── ALB
-├── CloudFront
-├── S3
-├── API Gateway
-└── External Applications
+Authoritative DNS
+        |
+        v
+DNS Record
+        |
+        +----------> EC2 Public IP
+        |
+        +----------> ALB
+```
+
+### Points to Remember
+
+- DNS converts **domain names → destination information**.
+- Route 53 can be the **authoritative DNS service** for a domain.
+- Route 53 does **not** host your application.
+- Route 53 routes users toward resources such as EC2, ALB, CloudFront, API Gateway, and S3 website endpoints.
 
 ---
 
-# 5. Hosted Zones
+# 3. Domain Purchase
 
-Hosted Zone is a container that stores DNS records.
+### Console Steps
 
-Types:
-
-## Public Hosted Zone
-
-Accessible from Internet.
-
-Examples:
-
-[www.cloudnautic.in](http://www.cloudnautic.in)
-
-Use Cases:
-
-* Websites
-* Web Applications
-* APIs
-
----
-
-## Private Hosted Zone
-
-Accessible only inside VPC.
-
-Examples:
-
-db.internal.local
-
-api.internal.local
-
-Use Cases:
-
-* Internal Applications
-* Databases
-* Microservices
-
----
-
-# Public vs Private Hosted Zone
-
-| Feature              | Public | Private |
-| -------------------- | ------ | ------- |
-| Internet Accessible  | Yes    | No      |
-| VPC Required         | No     | Yes     |
-| Public Website       | Yes    | No      |
-| Internal Application | No     | Yes     |
-
----
-
-# 6. DNS Record Types
-
-## A Record
-
-Maps hostname to IPv4.
+```text
+AWS Console
+   ↓
+Route 53
+   ↓
+Registered domains
+   ↓
+Register domains
+   ↓
+Search domain
+   ↓
+Select domain
+   ↓
+Enter contact information
+   ↓
+Complete purchase
+```
 
 Example:
 
-[www.cloudnautic.in](http://www.cloudnautic.in)
+```text
+atulkamble.in
+```
 
-↓
+After registration, check:
 
-54.210.10.20
+```text
+Route 53
+→ Registered domains
+→ atulkamble.in
+```
 
----
+### Points to Remember
 
-## AAAA Record
-
-Maps hostname to IPv6.
-
-Example:
-
-[www.cloudnautic.in](http://www.cloudnautic.in)
-
-↓
-
-2001:db8::1
-
----
-
-## CNAME Record
-
-Maps hostname to another hostname.
-
-Example:
-
-blog.cloudnautic.in
-
-↓
-
-[www.cloudnautic.in](http://www.cloudnautic.in)
+- Domain registration and hosted-zone DNS hosting are separate concepts.
+- Registration is generally renewed annually.
+- AWS can automatically create/manage the required name-server configuration when Route 53 is used for DNS.
+- If the domain is registered elsewhere, update the registrar's NS records to the Route 53 name servers.
 
 ---
 
-## MX Record
-
-Mail Server Record.
-
-Example:
-
-Google Workspace
-
-Microsoft 365
-
----
-
-## TXT Record
-
-Used for:
-
-* SPF
-* DKIM
-* DMARC
-* Domain Verification
-
-Example:
-
-v=spf1 include:_spf.google.com ~all
-
----
-
-## NS Record
-
-Name Server Record.
-
-Example:
-
-ns-123.awsdns.com
-
-ns-456.awsdns.net
-
----
-
-# 7. Alias Records
-
-Alias Record is AWS-specific.
-
-Can point directly to:
-
-* ALB
-* NLB
-* CloudFront
-* S3 Website
-* API Gateway
-* Global Accelerator
-
-Benefits:
-
-* Supports Root Domain
-* AWS Optimized
-* Automatically Updates
-
----
-
-# A Record vs CNAME vs Alias
-
-| Feature      | A   | CNAME    | Alias        |
-| ------------ | --- | -------- | ------------ |
-| Points To    | IP  | Hostname | AWS Resource |
-| Root Domain  | Yes | No       | Yes          |
-| Auto Updates | No  | No       | Yes          |
-| AWS Native   | No  | No       | Yes          |
-
----
-
-# 8. Routing Policies
-
-Routing Policy determines where Route 53 sends traffic.
-
----
-
-## Simple Routing
-
-Single Resource
-
-User
-↓
-EC2
-
-Use Cases:
-
-* Personal Website
-* Single Application
-
----
-
-## Weighted Routing
-
-Traffic Distribution
-
-70% → Blue
-
-30% → Green
-
-Use Cases:
-
-* Blue Green Deployment
-* Canary Release
-* A/B Testing
-
----
-
-## Latency Routing
-
-Routes traffic to nearest AWS Region.
-
-India User
-↓
-Mumbai
-
-US User
-↓
-Virginia
-
-Use Cases:
-
-* Streaming Services
-* Global Applications
-
----
-
-## Failover Routing
-
-Primary Resource
-↓
-Health Check
-↓
-Backup Resource
-
-Use Cases:
-
-* Disaster Recovery
-* Business Continuity
-
----
-
-## Geolocation Routing
-
-Routes traffic based on country.
-
-India
-↓
-India Website
-
-USA
-↓
-USA Website
-
-Use Cases:
-
-* Regional Content
-* Compliance
-
----
-
-## Geoproximity Routing
-
-Routes users based on physical distance.
-
-Closest AWS Region receives traffic.
-
----
-
-## Multi Value Routing
-
-Returns multiple healthy IPs.
-
-Server 1
-
-Server 2
-
-Server 3
-
-Benefits:
-
-* Basic Load Balancing
-* High Availability
-
----
-
-# Routing Policy Comparison
-
-| Policy      | HA     | DR  | Global |
-| ----------- | ------ | --- | ------ |
-| Simple      | No     | No  | No     |
-| Weighted    | Medium | No  | No     |
-| Latency     | Yes    | No  | Yes    |
-| Failover    | Yes    | Yes | No     |
-| Geolocation | Yes    | No  | Yes    |
-| Multi Value | Yes    | No  | Yes    |
-
----
-
-# 9. Health Checks
-
-Monitor:
-
-* HTTP
-* HTTPS
-* TCP
-
-Common URLs:
-
-/health
-
-/status
-
-/heartbeat
-
-Example:
-
-https://app.cloudnautic.in/health
-
----
-
-Health Check Flow
-
-Route53
-↓
-Health Check
-↓
-Healthy
-↓
-Primary
-
-OR
-
-Unhealthy
-↓
-Backup
-
----
-
-# 10. Route 53 Integrations
-
-| AWS Service        | Integration |
-| ------------------ | ----------- |
-| EC2                | A Record    |
-| ALB                | Alias       |
-| NLB                | Alias       |
-| CloudFront         | Alias       |
-| S3 Website         | Alias       |
-| API Gateway        | Alias       |
-| Global Accelerator | Alias       |
-| Elastic Beanstalk  | CNAME       |
-
----
-
-# 11. Route 53 Architectures
-
-## Route 53 + EC2
-
-Users
-↓
-Route53
-↓
-EC2
-
----
-
-## Route 53 + ALB
-
-Users
-↓
-Route53
-↓
-ALB
-↓
-EC2
-
----
-
-## Route 53 + Auto Scaling
-
-Users
-↓
-Route53
-↓
-ALB
-↓
-ASG
-↓
-EC2
-
----
-
-## Route 53 + CloudFront
-
-Users
-↓
-Route53
-↓
-CloudFront
-↓
-Origin
-
----
-
-## Route 53 + S3
-
-Users
-↓
-Route53
-↓
-S3 Static Website
-
----
-
-## Multi-Region Disaster Recovery
-
-Users
-↓
-Route53 Failover
-↓
-Mumbai Region
-↓
-Primary
-
-Failure
-
-↓
-
-Virginia Region
-↓
-Backup
-
----
-
-# 12. AWS CLI Commands
-
-List Hosted Zones
-
+# 4. Hosted Zone
+
+A **Hosted Zone** is a container for DNS records for a domain.
+
+```text
+Hosted Zone
+atulkamble.in
+     |
+     +-- A
+     +-- AAAA
+     +-- CNAME
+     +-- MX
+     +-- TXT
+     +-- NS
+     +-- SOA
+```
+
+### Types
+
+| Hosted Zone | Used For |
+|---|---|
+| Public | Internet-facing DNS |
+| Private | DNS inside associated VPCs |
+
+### CLI
+
+```bash
 aws route53 list-hosted-zones
+```
 
-Create Hosted Zone
+Create:
 
-aws route53 create-hosted-zone 
---name cloudnautic.in 
---caller-reference 001
+```bash
+aws route53 create-hosted-zone \
+  --name atulkamble.in \
+  --caller-reference "$(date +%s)"
+```
 
-Get Hosted Zone
+List records:
 
-aws route53 get-hosted-zone 
---id Z123456789
-
-List Records
-
-aws route53 list-resource-record-sets 
---hosted-zone-id Z123456789
-
-Create Health Check
-
-aws route53 create-health-check 
---caller-reference HC001 
---health-check-config 
-IPAddress=8.8.8.8,Port=80,Type=HTTP
-
-List Health Checks
-
-aws route53 list-health-checks
-
-Delete Health Check
-
-aws route53 delete-health-check 
---health-check-id abc123
+```bash
+aws route53 list-resource-record-sets \
+  --hosted-zone-id ZONE_ID
+```
 
 ---
 
-# 13. Hands-On Labs
+# 5. Important DNS Records
 
-Lab 1
+| Record | Purpose | Example |
+|---|---|---|
+| A | Name → IPv4 | EC2 IPv4 |
+| AAAA | Name → IPv6 | IPv6 address |
+| CNAME | Name → another DNS name | `blog → app.example.com` |
+| Alias | Name → supported AWS resource | ALB |
+| MX | Mail routing | Mail server |
+| TXT | Verification/security text | SPF/DKIM |
+| NS | Authoritative name servers | Route 53 servers |
 
-Route53 + EC2
+### Points to Remember
 
-Skills:
+```text
+EC2 Public IPv4
+      → A Record
 
-* Hosted Zones
-* A Records
-* Apache Installation
+ALB
+      → Alias Record
 
----
+Another hostname
+      → CNAME
+```
 
-Lab 2
+**Important:** A standard CNAME cannot normally be used at the zone apex/root domain, such as:
 
-Route53 + ALB
+```text
+atulkamble.in
+```
 
-Skills:
-
-* Alias Records
-* Load Balancing
-
----
-
-Lab 3
-
-Route53 Failover
-
-Skills:
-
-* Health Checks
-* Disaster Recovery
-
----
-
-Lab 4
-
-Blue Green Deployment
-
-Skills:
-
-* Weighted Routing
-* Zero Downtime Deployment
+Route 53 Alias records can support the zone apex for supported AWS targets.
 
 ---
 
-# 14. Real-World Projects
+# 6. Hands-On Lab 1 — Route 53 → EC2
 
-Project 1
+## Architecture
 
-Personal Website
+```text
+Laptop
+   |
+   | https/http request
+   v
+atulkamble.in
+   |
+   v
+Route 53
+   |
+   | A Record
+   v
+EC2 Public IP
+   |
+   v
+Apache Web Server
+```
 
-Route53 + EC2
+## Step 1 — Create EC2
 
----
+Create Amazon Linux EC2.
 
-Project 2
+Security Group:
 
-Corporate Website
+| Type | Port | Source |
+|---|---:|---|
+| SSH | 22 | My IP |
+| HTTP | 80 | 0.0.0.0/0 |
 
-Route53 + ALB + ASG
+Install Apache:
 
----
+```bash
+sudo dnf install httpd -y
 
-Project 3
+sudo systemctl enable --now httpd
+```
 
-Static Website Hosting
+Create test page:
 
-Route53 + S3
-
----
-
-Project 4
-
-Global Application
-
-Route53 + CloudFront
-
----
-
-Project 5
-
-Disaster Recovery Platform
-
-Route53 Failover
-Mumbai
-Virginia
-
----
-
-# 15. Monitoring & Security
-
-Monitoring Tools:
-
-* CloudWatch
-* CloudTrail
-* Route53 Health Checks
-* SNS
-
-Security Best Practices:
-
-* Enable MFA
-* IAM Least Privilege
-* CloudTrail Logging
-* DNSSEC
-* Restrict Route53 Access
-
----
-
-# 16. Pricing Components
-
-Charges apply for:
-
-* Hosted Zones
-* DNS Queries
-* Health Checks
-* Domain Registration
-
----
-
-# 17. Troubleshooting Checklist
-
-Website Not Opening?
+```bash
+echo "<h1>Route 53 to EC2 Working</h1>" | \
+sudo tee /var/www/html/index.html
+```
 
 Check:
 
-□ Domain Registration
+```bash
+curl localhost
+```
 
-□ Hosted Zone
+Test EC2 first:
 
-□ Name Servers
-
-□ DNS Records
-
-□ EC2 Status
-
-□ ALB Status
-
-□ Security Group
-
-□ Health Checks
-
-□ TTL
-
-□ DNS Propagation
+```text
+http://EC2-PUBLIC-IP
+```
 
 ---
 
-# 18. Interview Questions
+# 7. Create A Record for EC2
 
-What is Route 53?
+Route 53:
 
-Managed DNS service from AWS.
+```text
+Hosted zones
+     ↓
+atulkamble.in
+     ↓
+Create record
+```
 
-Why Route 53?
+Example:
 
-DNS uses Port 53.
+```text
+Record name: www
+Record type: A
+Value: EC2-PUBLIC-IP
+TTL: 300
+Routing policy: Simple
+```
 
-What is Hosted Zone?
+Result:
 
-Container for DNS records.
+```text
+www.atulkamble.in
+        |
+        v
+    A Record
+        |
+        v
+EC2 Public IPv4
+```
 
-What is Alias Record?
+### CLI Record Creation
 
-AWS-specific DNS record.
+Create:
 
-Best Routing Policy for DR?
+```bash
+nano ec2-record.json
+```
 
-Failover Routing.
+```json
+{
+  "Comment": "Route www to EC2",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "www.atulkamble.in",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [
+          {
+            "Value": "EC2_PUBLIC_IP"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
 
-Best Routing Policy for Blue-Green?
+Apply:
 
-Weighted Routing.
-
-Best Routing Policy for Global Applications?
-
-Latency Routing.
-
----
-
-# 19. Route53 Comparison Tables
-
-Route53 vs ALB
-
-| Feature        | Route53   | ALB               |
-| -------------- | --------- | ----------------- |
-| DNS            | Yes       | No                |
-| Global         | Yes       | No                |
-| Load Balancing | DNS Level | Application Level |
-
-Route53 vs CloudFront
-
-| Feature | Route53 | CloudFront |
-| ------- | ------- | ---------- |
-| DNS     | Yes     | No         |
-| CDN     | No      | Yes        |
-| Caching | No      | Yes        |
-
----
-
-# 20. Learning Roadmap
-
-Week 1
-
-DNS
-Hosted Zones
-Records
-
-Week 2
-
-Alias
-Routing Policies
-Health Checks
-
-Week 3
-
-Route53 + EC2
-Route53 + ALB
-Route53 + S3
-
-Week 4
-
-Failover
-CloudFront
-Multi-Region Architecture
+```bash
+aws route53 change-resource-record-sets \
+  --hosted-zone-id ZONE_ID \
+  --change-batch file://ec2-record.json
+```
 
 ---
 
-# 21. Quick Revision Sheet
+# 8. Verify DNS
 
-Route53 = AWS DNS Service
+Use:
 
-Port = 53
+```bash
+nslookup www.atulkamble.in
+```
 
-Hosted Zone = DNS Database
+Or:
 
-Public Hosted Zone = Internet
+```bash
+dig www.atulkamble.in
+```
 
-Private Hosted Zone = VPC
+Only IPv4 answer:
 
-Alias = AWS Resources
+```bash
+dig A www.atulkamble.in
+```
 
-Weighted = Blue Green
+Test website:
 
-Latency = Global Apps
+```bash
+curl http://www.atulkamble.in
+```
 
-Failover = Disaster Recovery
+### Troubleshooting Order
 
-Multi Value = DNS Load Balancing
+```text
+Domain
+   ↓
+NS
+   ↓
+Hosted Zone
+   ↓
+DNS Record
+   ↓
+EC2 Public IP
+   ↓
+Security Group
+   ↓
+Web Server
+```
 
-Most Important Topics:
+---
 
-✓ Hosted Zones
+# 9. Hands-On Lab 2 — Route 53 → ALB → EC2
 
-✓ Alias Records
+This is the more realistic architecture.
 
-✓ Routing Policies
+```text
+                    INTERNET
+                        |
+                        v
+                 atulkamble.in
+                        |
+                        v
+                    Route 53
+                        |
+                   Alias Record
+                        |
+                        v
+                Application LB
+                   /         \
+                  /           \
+                 v             v
+              EC2-1           EC2-2
+```
 
-✓ Health Checks
+---
 
-✓ Failover
+# 10. Create Two EC2 Web Servers
 
-✓ Route53 + ALB
+EC2-1:
 
-✓ Route53 + CloudFront
+```bash
+sudo dnf install httpd -y
+sudo systemctl enable --now httpd
 
-✓ Route53 + S3
+echo "<h1>Server 1</h1>" | \
+sudo tee /var/www/html/index.html
+```
 
-✓ Disaster Recovery
+EC2-2:
 
-END OF DOCUMENT
+```bash
+sudo dnf install httpd -y
+sudo systemctl enable --now httpd
+
+echo "<h1>Server 2</h1>" | \
+sudo tee /var/www/html/index.html
+```
+
+---
+
+# 11. Create Target Group
+
+Console:
+
+```text
+EC2
+ ↓
+Target Groups
+ ↓
+Create Target Group
+```
+
+Configuration:
+
+```text
+Target type: Instances
+Protocol: HTTP
+Port: 80
+Health check: /
+```
+
+Register:
+
+```text
+EC2-1
+EC2-2
+```
+
+Wait until:
+
+```text
+EC2-1 → Healthy
+EC2-2 → Healthy
+```
+
+---
+
+# 12. Create ALB
+
+```text
+EC2
+ ↓
+Load Balancers
+ ↓
+Create
+ ↓
+Application Load Balancer
+```
+
+Configure:
+
+```text
+Scheme: Internet-facing
+Listener: HTTP : 80
+Subnets: At least two AZs
+Target Group: Existing target group
+```
+
+Test ALB before configuring Route 53:
+
+```bash
+curl http://ALB-DNS-NAME
+```
+
+Repeated requests should reach healthy targets.
+
+---
+
+# 13. Route 53 → ALB
+
+Create record:
+
+```text
+Record name: www
+
+Record type:
+A
+
+Alias:
+ON
+
+Route traffic to:
+Alias to Application and Classic Load Balancer
+
+Region:
+Your ALB region
+
+Load Balancer:
+Select ALB
+```
+
+Architecture:
+
+```text
+www.atulkamble.in
+       |
+       v
+   Route 53
+       |
+    A Alias
+       |
+       v
+      ALB
+    /     \
+   v       v
+EC2-1    EC2-2
+```
+
+### Important
+
+Do **not** create an A record containing an ALB's changing IP address.
+
+Use:
+
+```text
+A/AAAA Alias → ALB
+```
+
+---
+
+# 14. EC2 vs ALB DNS Design
+
+| Scenario | Route 53 Record |
+|---|---|
+| Domain → EC2 IPv4 | A |
+| Domain → EC2 IPv6 | AAAA |
+| Domain → ALB | Alias |
+| Subdomain → hostname | CNAME |
+| Domain → CloudFront | Alias |
+
+### Production Preference
+
+```text
+Route 53
+   ↓
+ALB
+   ↓
+Target Group
+   ↓
+EC2 / Auto Scaling
+```
+
+is generally preferable to:
+
+```text
+Route 53
+   ↓
+Single EC2
+```
+
+because the load-balanced design supports multiple application instances and health-based target routing.
+
+---
+
+# 15. Routing Policies — Must Remember
+
+| Policy | Main Purpose |
+|---|---|
+| Simple | Basic DNS routing |
+| Weighted | Percentage-based traffic |
+| Latency | Lowest-latency AWS endpoint |
+| Failover | Primary/secondary DR |
+| Geolocation | User-location rules |
+| Geoproximity | Resource/user geography + bias |
+| Multivalue Answer | Multiple healthy DNS answers |
+
+### Memory Trick
+
+```text
+Simple      → One/basic destination
+
+Weighted    → 80/20
+
+Latency     → Best latency
+
+Failover    → Primary/Secondary
+
+Geolocation → User location
+
+Geoproximity → Geographic proximity + bias
+
+Multivalue  → Multiple healthy answers
+```
+
+---
+
+# 16. Weighted Routing Example
+
+```text
+                 Route 53
+                    |
+             Weighted Routing
+               /          \
+             80%          20%
+              |            |
+              v            v
+          Version 1    Version 2
+```
+
+Useful for:
+
+- Canary deployments
+- Blue/green migration
+- Gradual traffic shifting
+
+---
+
+# 17. Failover Routing
+
+```text
+                  Route 53
+                     |
+                 Health Check
+                     |
+            +--------+--------+
+            |                 |
+          Healthy          Unhealthy
+            |                 |
+            v                 v
+         Primary           Secondary
+```
+
+Used for disaster recovery.
+
+---
+
+# 18. Health Check Commands
+
+Create an HTTP health check:
+
+```bash
+aws route53 create-health-check \
+  --caller-reference "$(date +%s)" \
+  --health-check-config \
+  IPAddress=PUBLIC_IP,Port=80,Type=HTTP,ResourcePath=/
+```
+
+List:
+
+```bash
+aws route53 list-health-checks
+```
+
+Check status:
+
+```bash
+aws route53 get-health-check-status \
+  --health-check-id HEALTH_CHECK_ID
+```
+
+Delete:
+
+```bash
+aws route53 delete-health-check \
+  --health-check-id HEALTH_CHECK_ID
+```
+
+---
+
+# 19. Essential CLI Commands
+
+### Domains/Hosted Zones
+
+```bash
+aws route53 list-hosted-zones
+```
+
+```bash
+aws route53 get-hosted-zone \
+  --id ZONE_ID
+```
+
+### Records
+
+```bash
+aws route53 list-resource-record-sets \
+  --hosted-zone-id ZONE_ID
+```
+
+### Health Checks
+
+```bash
+aws route53 list-health-checks
+```
+
+### DNS Testing
+
+```bash
+nslookup atulkamble.in
+```
+
+```bash
+dig atulkamble.in
+```
+
+```bash
+dig NS atulkamble.in
+```
+
+```bash
+dig A www.atulkamble.in
+```
+
+```bash
+curl -I http://www.atulkamble.in
+```
+
+---
+
+# 20. Points to Remember
+
+1. **Route 53 is a global DNS service.**
+2. **Hosted Zone contains DNS records.**
+3. **Public Hosted Zone = internet DNS.**
+4. **Private Hosted Zone = VPC-associated private DNS.**
+5. **A = hostname → IPv4.**
+6. **AAAA = hostname → IPv6.**
+7. **CNAME = hostname → another hostname.**
+8. **Alias = Route 53 feature for supported AWS targets.**
+9. **Use Alias for ALB rather than hard-coding ALB IP addresses.**
+10. **Weighted = percentage-based traffic distribution.**
+11. **Latency routing chooses based on AWS-measured latency, not simply geographic distance.**
+12. **Failover = primary/secondary DR.**
+13. **Geolocation = based on user DNS-query location.**
+14. **Multivalue Answer can return multiple healthy records but is not a replacement for ALB.**
+15. **TTL controls DNS record caching duration.**
+16. **Always test the backend resource before blaming DNS.**
+17. **For EC2 directly exposed through DNS, a changing public IPv4 can break the record; an Elastic IP can provide a stable IPv4.**
+18. **For ALB, use the ALB DNS target through Route 53 Alias.**
+19. **Security Groups/NACLs still control network access; Route 53 does not bypass them.**
+20. **DNS propagation/caching can cause old answers to remain temporarily.**
+
+## Final Training Flow
+
+```text
+1. Understand DNS
+        ↓
+2. Register/Use Domain
+        ↓
+3. Check Hosted Zone
+        ↓
+4. Understand A/CNAME/Alias
+        ↓
+5. Route 53 → EC2 Lab
+        ↓
+6. Verify using dig/nslookup/curl
+        ↓
+7. Create Target Group
+        ↓
+8. Create ALB + EC2
+        ↓
+9. Route 53 Alias → ALB
+        ↓
+10. Weighted Routing
+        ↓
+11. Health Checks
+        ↓
+12. Failover Routing
+```
+
+For a focused Route 53 class, these are the highest-value labs: **Domain → EC2**, **Domain → ALB**, **Weighted Routing**, and **Failover + Health Check**.
