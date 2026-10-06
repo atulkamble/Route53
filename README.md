@@ -767,3 +767,7 @@ curl -I http://www.atulkamble.in
         ↓
 12. Failover Routing
 ```
+```
+cd route53-training-website
+python3 -m http.server 8080
+```
