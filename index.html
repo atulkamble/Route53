@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>AWS Route 53 Training</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7fa;
+      color: #232f3e;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #232f3e;
+      color: white;
+      padding: 50px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 18px;
+      color: #d5dbdb;
+    }
+
+    nav {
+      background: #131a22;
+      padding: 15px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 12px;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      color: #ff9900;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+
+    section {
+      margin-bottom: 55px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      border-left: 5px solid #ff9900;
+      padding-left: 12px;
+    }
+
+    h3 {
+      margin-bottom: 10px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 10px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .card h3 {
+      color: #e47911;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #232f3e;
+      color: white;
+    }
+
+    .diagram {
+      background: #111827;
+      color: #e5e7eb;
+      padding: 25px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-family: monospace;
+      white-space: pre;
+      margin-top: 20px;
+    }
+
+    .highlight {
+      background: #fff4d6;
+      border-left: 5px solid #ff9900;
+      padding: 18px;
+      margin: 20px 0;
+    }
+
+    code {
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 4px 7px;
+      border-radius: 4px;
+    }
+
+    footer {
+      background: #232f3e;
+      color: white;
+      text-align: center;
+      padding: 25px;
+    }
+
+    ul {
+      padding-left: 22px;
+    }
+
+    li {
+      margin-bottom: 7px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>AWS Route 53</h1>
+  <p>Domain Registration • DNS Records • Traffic Routing • Health Checks</p>
+</header>
+
+<nav>
+  <a href="#about">Overview</a>
+  <a href="#features">Features</a>
+  <a href="#records">DNS Records</a>
+  <a href="#routing">Routing</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#health">Health Checks</a>
+  <a href="#remember">Remember</a>
+</nav>
+
+<div class="container">
+
+  <!-- Overview -->
+
+  <section id="about">
+
+    <h2>What is AWS Route 53?</h2>
+
+    <p>
+      Amazon Route 53 is a highly available and scalable Domain Name System
+      service provided by AWS.
+    </p>
+
+    <div class="highlight">
+      <strong>Route 53 converts domain names into destinations such as IP
+      addresses or AWS resources.</strong>
+    </div>
+
+    <div class="diagram">
+User
+ |
+ | www.example.com
+ v
+DNS Resolver
+ |
+ v
+Route 53
+ |
+ +------> EC2
+ |
+ +------> ALB
+ |
+ +------> CloudFront
+ |
+ +------> S3
+ |
+ +------> API Gateway
+    </div>
+
+  </section>
+
+
+  <!-- Features -->
+
+  <section id="features">
+
+    <h2>Route 53 Core Features</h2>
+
+    <div class="cards">
+
+      <div class="card">
+        <h3>Domain Registration</h3>
+        <p>
+          Purchase and manage domains directly through AWS.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>DNS Management</h3>
+        <p>
+          Create and manage A, AAAA, CNAME, MX, TXT and other DNS records.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Traffic Routing</h3>
+        <p>
+          Control how DNS traffic is distributed between application
+          endpoints.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Health Checks</h3>
+        <p>
+          Monitor endpoints and route traffic away from unhealthy resources.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Disaster Recovery</h3>
+        <p>
+          Configure primary and secondary resources using failover routing.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Global DNS</h3>
+        <p>
+          Route 53 is a global AWS service used to route users to regional or
+          global applications.
+        </p>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- Hosted Zone -->
+
+  <section>
+
+    <h2>Hosted Zones</h2>
+
+    <div class="cards">
+
+      <div class="card">
+        <h3>Public Hosted Zone</h3>
+
+        <p>Used for public internet DNS.</p>
+
+        <br>
+
+        <strong>Example:</strong>
+
+        <p>www.atulkamble.in</p>
+
+      </div>
+
+      <div class="card">
+
+        <h3>Private Hosted Zone</h3>
+
+        <p>
+          Used for private DNS resolution within associated Amazon VPCs.
+        </p>
+
+        <br>
+
+        <strong>Example:</strong>
+
+        <p>database.internal</p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- DNS Records -->
+
+  <section id="records">
+
+    <h2>Important DNS Records</h2>
+
+    <table>
+
+      <tr>
+        <th>Record</th>
+        <th>Purpose</th>
+        <th>Example</th>
+      </tr>
+
+      <tr>
+        <td>A</td>
+        <td>Maps hostname to IPv4</td>
+        <td>www.example.com → 54.10.20.30</td>
+      </tr>
+
+      <tr>
+        <td>AAAA</td>
+        <td>Maps hostname to IPv6</td>
+        <td>www.example.com → IPv6 address</td>
+      </tr>
+
+      <tr>
+        <td>CNAME</td>
+        <td>Maps hostname to another hostname</td>
+        <td>blog.example.com → www.example.com</td>
+      </tr>
+
+      <tr>
+        <td>Alias</td>
+        <td>Route 53 record for supported AWS resources</td>
+        <td>example.com → ALB</td>
+      </tr>
+
+      <tr>
+        <td>MX</td>
+        <td>Mail routing</td>
+        <td>Google Workspace / Microsoft 365</td>
+      </tr>
+
+      <tr>
+        <td>TXT</td>
+        <td>Verification and email security</td>
+        <td>SPF / DKIM / domain verification</td>
+      </tr>
+
+      <tr>
+        <td>NS</td>
+        <td>Authoritative DNS servers</td>
+        <td>Route 53 name servers</td>
+      </tr>
+
+    </table>
+
+  </section>
+
+
+  <!-- Alias -->
+
+  <section>
+
+    <h2>Route 53 Alias Record</h2>
+
+    <p>
+      Alias records are a Route 53 feature designed to route traffic to
+      supported AWS resources.
+    </p>
+
+    <div class="cards">
+
+      <div class="card">
+        Application Load Balancer
+      </div>
+
+      <div class="card">
+        Network Load Balancer
+      </div>
+
+      <div class="card">
+        CloudFront
+      </div>
+
+      <div class="card">
+        API Gateway
+      </div>
+
+      <div class="card">
+        S3 Website Endpoint
+      </div>
+
+    </div>
+
+    <div class="highlight">
+      For an ALB, use a Route 53 <strong>Alias record</strong> instead of
+      storing an ALB IP address.
+    </div>
+
+  </section>
+
+
+  <!-- Routing -->
+
+  <section id="routing">
+
+    <h2>Route 53 Routing Policies</h2>
+
+    <div class="cards">
+
+      <div class="card">
+        <h3>Simple</h3>
+        <p>Basic DNS routing to one or more resources.</p>
+      </div>
+
+      <div class="card">
+        <h3>Weighted</h3>
+        <p>Distribute DNS traffic using percentages.</p>
+
+        <br>
+
+        <strong>Example</strong>
+
+        <p>80% → Version 1</p>
+        <p>20% → Version 2</p>
+      </div>
+
+      <div class="card">
+        <h3>Latency</h3>
+        <p>
+          Route users to the AWS endpoint that provides the lowest latency.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Failover</h3>
+        <p>
+          Route traffic between primary and secondary resources.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Geolocation</h3>
+        <p>
+          Route traffic based on the geographic location of DNS queries.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Geoproximity</h3>
+        <p>
+          Route traffic based on geographic proximity with optional traffic
+          biasing.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Multivalue Answer</h3>
+        <p>
+          Return multiple healthy DNS records.
+        </p>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- Weighted Diagram -->
+
+  <section>
+
+    <h2>Weighted Routing Example</h2>
+
+    <div class="diagram">
+                    Route 53
+                        |
+                 Weighted Routing
+                    /       \
+                   /         \
+                80%           20%
+                 |             |
+                 v             v
+             Version 1     Version 2
+    </div>
+
+    <p>
+      Common use cases include canary releases, gradual migration,
+      A/B testing and blue-green deployment.
+    </p>
+
+  </section>
+
+
+  <!-- Architecture -->
+
+  <section id="architecture">
+
+    <h2>Route 53 → EC2 Architecture</h2>
+
+    <div class="diagram">
+User Browser
+     |
+     | www.atulkamble.in
+     v
+ Route 53
+     |
+   A Record
+     |
+     v
+EC2 Public IPv4
+     |
+     v
+Web Server
+    </div>
+
+    <div class="highlight">
+
+      When an A record points directly to EC2, use a stable IPv4 address such
+      as an Elastic IP if the DNS destination must remain unchanged.
+
+    </div>
+
+  </section>
+
+
+  <!-- ALB Architecture -->
+
+  <section>
+
+    <h2>Route 53 → ALB Architecture</h2>
+
+    <div class="diagram">
+Internet User
+      |
+      v
+www.atulkamble.in
+      |
+      v
+   Route 53
+      |
+   A Alias
+      |
+      v
+Application Load Balancer
+      |
+      v
+   Target Group
+    /       \
+   /         \
+  v           v
+EC2-1       EC2-2
+    </div>
+
+    <p>
+      This is a common production architecture because the ALB distributes
+      HTTP/HTTPS requests among healthy application targets.
+    </p>
+
+  </section>
+
+
+  <!-- Health Checks -->
+
+  <section id="health">
+
+    <h2>Health Checks</h2>
+
+    <p>
+      Route 53 health checks can monitor endpoints using HTTP, HTTPS or TCP.
+    </p>
+
+    <div class="diagram">
+                Route 53
+                    |
+               Health Check
+                    |
+          +---------+---------+
+          |                   |
+       Healthy             Unhealthy
+          |                   |
+          v                   v
+       Primary            Secondary
+    </div>
+
+    <div class="highlight">
+      Health checks are commonly combined with
+      <strong>Failover Routing</strong>.
+    </div>
+
+  </section>
+
+
+  <!-- Commands -->
+
+  <section>
+
+    <h2>Useful Route 53 Commands</h2>
+
+    <div class="card">
+
+      <p><strong>List Hosted Zones</strong></p>
+
+      <pre><code>aws route53 list-hosted-zones</code></pre>
+
+      <br>
+
+      <p><strong>List DNS Records</strong></p>
+
+      <pre><code>aws route53 list-resource-record-sets \
+--hosted-zone-id ZONE_ID</code></pre>
+
+      <br>
+
+      <p><strong>List Health Checks</strong></p>
+
+      <pre><code>aws route53 list-health-checks</code></pre>
+
+      <br>
+
+      <p><strong>DNS Lookup</strong></p>
+
+      <pre><code>nslookup www.atulkamble.in</code></pre>
+
+      <br>
+
+      <p><strong>DNS Query</strong></p>
+
+      <pre><code>dig www.atulkamble.in</code></pre>
+
+      <br>
+
+      <p><strong>Check Name Servers</strong></p>
+
+      <pre><code>dig NS atulkamble.in</code></pre>
+
+    </div>
+
+  </section>
+
+
+  <!-- Remember -->
+
+  <section id="remember">
+
+    <h2>Points to Remember</h2>
+
+    <div class="card">
+
+      <ul>
+
+        <li>Route 53 is a global DNS service.</li>
+
+        <li>DNS commonly uses UDP/TCP port 53.</li>
+
+        <li>A record maps a hostname to IPv4.</li>
+
+        <li>AAAA maps a hostname to IPv6.</li>
+
+        <li>CNAME maps one hostname to another hostname.</li>
+
+        <li>Alias records can point to supported AWS resources.</li>
+
+        <li>Use an Alias record for an Application Load Balancer.</li>
+
+        <li>Weighted routing distributes DNS responses using configured weights.</li>
+
+        <li>Latency routing routes based on AWS-measured latency.</li>
+
+        <li>Failover routing is commonly used for disaster recovery.</li>
+
+        <li>Geolocation routing uses the geographic origin of DNS queries.</li>
+
+        <li>Health checks detect unhealthy endpoints.</li>
+
+        <li>TTL controls how long DNS responses can be cached.</li>
+
+        <li>Route 53 does not replace Security Groups, NACLs or load balancers.</li>
+
+      </ul>
+
+    </div>
+
+  </section>
+
+
+  <!-- Training Flow -->
+
+  <section>
+
+    <h2>Hands-On Training Flow</h2>
+
+    <div class="diagram">
+1. Register / Use Domain
+           |
+           v
+2. Hosted Zone
+           |
+           v
+3. Create DNS Records
+           |
+           v
+4. Route 53 → EC2
+           |
+           v
+5. Test using dig / nslookup
+           |
+           v
+6. Create Target Group
+           |
+           v
+7. Create ALB
+           |
+           v
+8. Route 53 Alias → ALB
+           |
+           v
+9. Weighted Routing
+           |
+           v
+10. Health Checks
+           |
+           v
+11. Failover Routing
+    </div>
+
+  </section>
+
+</div>
+
+<footer>
+  <p>AWS Route 53 Hands-On Training</p>
+  <p>Repository: atulkamble/Route53</p>
+</footer>
+
+</body>
+</html>
