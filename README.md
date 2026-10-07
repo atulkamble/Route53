@@ -1,3 +1,130 @@
+## AWS Route 53 — Settings & Configurations
+
+Route 53 mainly has **4 areas** you need to know:
+
+| Area | What to Configure |
+|---|---|
+| **Domain Registration** | Buy/register domain, nameservers, auto-renew, contact details |
+| **Hosted Zone** | Create public/private hosted zone for the domain |
+| **DNS Records** | A, AAAA, CNAME, MX, TXT, NS, SOA, Alias |
+| **Routing & Health** | Routing policies, health checks, failover |
+
+### 1. Hosted Zone
+
+A **Hosted Zone** stores DNS records for your domain.
+
+**Public Hosted Zone** → Internet-facing DNS  
+**Private Hosted Zone** → DNS inside a VPC
+
+Example:
+
+```text
+Domain: atulkamble.in
+        │
+        ▼
+Public Hosted Zone
+        │
+        ├── A      → 3.90.245.64
+        ├── www    → ALB
+        ├── MX     → Mail Server
+        └── TXT    → Verification
+```
+
+### 2. Important DNS Records
+
+| Record | Purpose | Example |
+|---|---|---|
+| **A** | Domain → IPv4 | `atulkamble.in → 3.90.245.64` |
+| **AAAA** | Domain → IPv6 | Domain → IPv6 |
+| **CNAME** | Name → another hostname | `www → example.com` |
+| **Alias** | Domain → AWS resource | Domain → ALB |
+| **MX** | Mail routing | Mail server |
+| **TXT** | Verification/security | SPF/domain verification |
+| **NS** | Authoritative DNS servers | Route 53 nameservers |
+| **SOA** | DNS zone information | Automatically created |
+
+### 3. Routing Policies
+
+| Policy | Use |
+|---|---|
+| **Simple** | One destination |
+| **Weighted** | Split traffic by percentage |
+| **Latency** | Lowest-latency AWS Region |
+| **Failover** | Primary → Secondary |
+| **Geolocation** | Route based on user's location |
+| **Geoproximity** | Route based on resource/user location |
+| **Multi-Value** | Return multiple healthy endpoints |
+| **IP-based** | Route based on client IP range |
+
+### 4. Common Configuration
+
+For an EC2 website:
+
+```text
+User
+ ↓
+Domain
+ ↓
+Route 53
+ ↓
+A Record
+ ↓
+EC2 Public IP
+ ↓
+Website
+```
+
+Example:
+
+```text
+Record Name : atulkamble.in
+Type        : A
+Value       : EC2 Elastic IP
+TTL         : 300
+Routing     : Simple
+```
+
+For an ALB:
+
+```text
+Record Name : atulkamble.in
+Type        : A
+Alias       : Yes
+Target      : Application Load Balancer
+Routing     : Simple
+```
+
+### 5. Health Check
+
+```text
+Route 53
+   ↓
+Health Check
+   ↓
+HTTP / HTTPS / TCP
+   ↓
+Endpoint
+```
+
+Main settings:
+
+```text
+Protocol
+IP / Domain
+Port
+Path
+Request Interval
+Failure Threshold
+```
+
+### Points to Remember
+
+**Domain → Hosted Zone → DNS Record → Routing Policy → Target**
+
+For practical Route 53 training, focus on:
+
+**A Record → EC2**, **Alias → ALB**, **Weighted Routing**, **Failover + Health Check**, and **DNS verification using `nslookup` / `dig`**.
+
 ## AWS Route 53 
 
 ### 1. What is Route 53?
