@@ -326,3 +326,67 @@ Website
 **NS = Name Server**  
 **TXT = Text**  
 **Alias = AWS Resource**
+
+# Domain & DNS Commands
+
+For macOS/Linux, these are the main commands worth knowing before Route 53.
+
+| Command | Purpose |
+|---|---|
+| `nslookup example.com` | Basic DNS lookup |
+| `dig example.com` | Detailed DNS lookup |
+| `dig example.com A` | Check IPv4/A record |
+| `dig example.com AAAA` | Check IPv6 record |
+| `dig example.com MX` | Check mail records |
+| `dig example.com NS` | Check name servers |
+| `dig example.com TXT` | Check TXT records |
+| `dig www.example.com CNAME` | Check CNAME |
+| `whois example.com` | Check domain registration information |
+| `host example.com` | Simple domain lookup |
+| `ping example.com` | Check name resolution/connectivity |
+| `curl -I https://example.com` | Check website HTTP response |
+
+## Most Useful Practice
+
+```bash
+# Find IP
+nslookup amazon.com
+
+# Check A record
+dig amazon.com A
+
+# Check name servers
+dig amazon.com NS
+
+# Check mail servers
+dig amazon.com MX
+
+# Check TXT records
+dig amazon.com TXT
+
+# Domain registration information
+whois amazon.com
+
+# Test website
+curl -I https://amazon.com
+```
+
+### Trace DNS Resolution
+
+```bash
+dig +trace example.com
+```
+
+This is especially useful for understanding the flow:
+
+```text
+Root DNS
+   ↓
+TLD (.com)
+   ↓
+Authoritative Name Server
+   ↓
+DNS Record
+   ↓
+IP / Destination
+```
