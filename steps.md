@@ -1,4 +1,4 @@
-
+```
 1. Create Launch Template 
 webserver | Amazon linux | webserver.pem | SG - http, https, ssh
 Advanced >> user data 
@@ -50,3 +50,4 @@ Delete Load Balancer
 Delete AutoScaling Group
 Delete Instances
 Delete Target Group
+```
